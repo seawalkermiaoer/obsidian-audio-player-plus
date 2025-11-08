@@ -1,61 +1,3 @@
-<template>
-  <div class="audio-player-ui" tabindex="0">
-    <div class="horiz">
-      <div v-show="!smallSize" class="vert">
-        <div class="playpause" @click="togglePlay" ref="playpause">
-        </div>
-        <div class="playpause seconds" @click="setPlayheadSecs(currentTime+5)" ref="add5">
-          +5s
-        </div>
-        <div class="playpause seconds" @click="setPlayheadSecs(currentTime-5)" ref="min5">
-          -5s
-        </div>
-      </div>
-      <div class="vert wide">
-        <div class="waveform">
-          <div class="wv" v-for="(s, i) in filteredData" :key="srcPath+i"
-            v-bind:class="{'played': i <= currentBar }"
-            @mousedown="barMouseDownHandler(i)"
-            :style="{
-              height: s * 100 + 'px'
-            }">
-          </div>
-        </div>
-        <div class="timeline">
-          <span class="current-time">
-            {{ displayedCurrentTime }}
-          </span>
-          <span class="duration">
-            {{ displayedDuration }}
-          </span>
-        </div>
-      </div>
-    </div>
-    <div v-show="smallSize" class="horiz" :style="{'margin': 'auto'}">
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime-5)" ref="min5">
-        -5s
-      </div>
-      <div class="playpause play-button" @click="togglePlay" ref="playpause1">
-      </div>
-      <div class="playpause seconds" @click="setPlayheadSecs(currentTime+5)" ref="add5">
-        +5s
-      </div>
-    </div>
-    <div v-if="showInput" class="comment-input">
-      <input v-model="newComment" 
-        @keydown.escape="showInput = false; newComment = ''" type="text" ref="commentInput"
-        @keydown.enter="addComment">
-      <button @click="addComment">Add</button>
-      <button @click="showInput = false; newComment = ''">Cancel</button>
-    </div>
-    <div class="comment-list">
-      <AudioCommentVue v-for="cmt in commentsSorted" v-bind:class="{'active-comment': cmt == activeComment }"
-        @move-playhead="setPlayheadSecs" @remove="removeComment"
-        :cmt="cmt" :key="cmt.timeString"></AudioCommentVue>
-    </div>
-  </div>
-</template>
-
 <script lang="ts">
 import { TFile, setIcon, MarkdownPostProcessorContext } from 'obsidian'
 import { defineComponent, PropType } from 'vue';
@@ -97,13 +39,16 @@ export default defineComponent({
 
       ro: ResizeObserver,
       smallSize: false,
+      
+      // Segment playback
+      currentSegmentEnd: null as number | null,
     }
   },
   computed: {
     displayedCurrentTime() { return secondsToString(this.currentTime); },
     displayedDuration() { return secondsToString(this.duration); },
     currentBar() { return Math.floor(this.currentTime / this.duration * this.nSamples); },
-    commentsSorted() { return this.comments.sort((x: AudioComment, y:AudioComment) => x.timeNumber - y.timeNumber); },
+    commentsSorted() { return this.comments.sort((x: AudioComment, y:AudioComment) => x.startTimeNumber - y.startTimeNumber); },
   },
   methods: {
     getSectionInfo() { return this.ctx.getSectionInfo(this.mdElement); },
@@ -227,7 +172,14 @@ export default defineComponent({
       if (this.isCurrent()) {
         this.currentTime = this.audio?.currentTime;
 
-        const nextCommencts = this.commentsSorted.filter((x: AudioComment) => this.audio?.currentTime >= x.timeNumber);
+        // Check if we've reached the end of a segment
+        if (this.currentSegmentEnd !== null && this.currentTime >= this.currentSegmentEnd) {
+          console.log(`Reached segment end: ${this.currentTime} >= ${this.currentSegmentEnd}`);
+          this.pause();
+          this.currentSegmentEnd = null;
+        }
+
+        const nextCommencts = this.commentsSorted.filter((x: AudioComment) => this.audio?.currentTime >= x.startTimeNumber);
         
         if (nextCommencts.length == 1) {
           this.activeComment = nextCommencts[0];
@@ -266,17 +218,45 @@ export default defineComponent({
 
       const cmts = cmtLines.map((x, i) => {
         const split = x.split(' --- ');
-        const timeStamp = secondsToNumber(split[0]);
+        let startTimeNumber = secondsToNumber(split[0]);
+        let startTimeString = split[0];
+        
+        // Check if there's an end time (format: "startTime → endTime --- content")
+        let endTimeNumber: number | undefined = undefined;
+        let endTimeString: string | undefined = undefined;
+        let content = split[1];
+        
+        if (split[0] && split[0].includes(' → ')) {
+          const timeSplit = split[0].split(' → ');
+          startTimeString = timeSplit[0];
+          startTimeNumber = secondsToNumber(startTimeString);
+          endTimeString = timeSplit[1];
+          endTimeNumber = secondsToNumber(endTimeString);
+        }
+        
+        if (split[1]) {
+          content = split[1];
+        }
+        
         const cmt: AudioComment = {
-          timeNumber: timeStamp,
-          timeString: split[0],
-          content: split[1],
-          index: i
+          startTimeNumber: startTimeNumber,
+          startTimeString: startTimeString,
+          content: content,
+          index: i,
+          endTimeNumber: endTimeNumber,
+          endTimeString: endTimeString
         }
         return cmt;
       });
       return cmts;
     },
+    
+    // New method for playing segments
+    playSegment(startTime: number, endTime: number) {
+      this.currentSegmentEnd = endTime;
+      this.setPlayheadSecs(startTime);
+      this.play();
+    }
   },
   created() { 
     this.loadFile();
@@ -326,5 +306,61 @@ export default defineComponent({
     this.ro.unobserve(this.$el);
   }
 })
-
 </script>
+<template>
+  <div class="audio-player-ui" tabindex="0">
+    <div class="horiz">
+      <div v-show="!smallSize" class="vert">
+        <div class="playpause" @click="togglePlay" ref="playpause">
+        </div>
+        <div class="playpause seconds" @click="setPlayheadSecs(currentTime+5)" ref="add5">
+          +5s
+        </div>
+        <div class="playpause seconds" @click="setPlayheadSecs(currentTime-5)" ref="min5">
+          -5s
+        </div>
+      </div>
+      <div class="vert wide">
+        <div class="waveform">
+          <div class="wv" v-for="(s, i) in filteredData" :key="srcPath+i"
+            v-bind:class="{'played': i <= currentBar }"
+            @mousedown="barMouseDownHandler(i)"
+            :style="{
+              height: s * 100 + 'px'
+            }">
+          </div>
+        </div>
+        <div class="timeline">
+          <span class="current-time">
+            {{ displayedCurrentTime }}
+          </span>
+          <span class="duration">
+            {{ displayedDuration }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div v-show="smallSize" class="horiz" :style="{'margin': 'auto'}">
+      <div class="playpause seconds" @click="setPlayheadSecs(currentTime-5)" ref="min5">
+        -5s
+      </div>
+      <div class="playpause play-button" @click="togglePlay" ref="playpause1">
+      </div>
+      <div class="playpause seconds" @click="setPlayheadSecs(currentTime+5)" ref="add5">
+        +5s
+      </div>
+    </div>
+    <div v-if="showInput" class="comment-input">
+      <input v-model="newComment" 
+        @keydown.escape="showInput = false; newComment = ''" type="text" ref="commentInput"
+        @keydown.enter="addComment">
+      <button @click="addComment">Add</button>
+      <button @click="showInput = false; newComment = ''">Cancel</button>
+    </div>
+    <div class="comment-list">
+      <AudioCommentVue v-for="cmt in commentsSorted" v-bind:class="{'active-comment': cmt == activeComment }"
+        @move-playhead="setPlayheadSecs" @remove="removeComment" @play-segment="playSegment"
+        :cmt="cmt" :key="cmt.startTimeString"></AudioCommentVue>
+    </div>
+  </div>
+</template>

@@ -27,10 +27,10 @@ __export(main_exports, {
   default: () => AudioPlayer
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian4 = require("obsidian");
+var import_obsidian3 = require("obsidian");
 
 // src/audioPlayerRenderer.ts
-var import_obsidian3 = require("obsidian");
+var import_obsidian2 = require("obsidian");
 
 // node_modules/@vue/shared/dist/shared.esm-bundler.js
 function makeMap(str, expectsLowerCase) {
@@ -6525,8 +6525,8 @@ if (true) {
   initDev();
 }
 
-// sfc-script:/mnt/d/the-book-of-knowledge/.obsidian/plugins/obsidian-audio-player/src/components/App.vue?type=script
-var import_obsidian2 = require("obsidian");
+// sfc-script:E:\best\obsidian-audio-player-plus\src\components\App.vue?type=script
+var import_obsidian = require("obsidian");
 
 // src/utils.ts
 function secondsToString(num) {
@@ -6541,53 +6541,48 @@ function secondsToNumber(stmp) {
   return nums[2] + nums[1] * 60 + nums[0] * 3600;
 }
 
-// sfc-script:/mnt/d/the-book-of-knowledge/.obsidian/plugins/obsidian-audio-player/src/components/AudioComment.vue?type=script
-var import_obsidian = require("obsidian");
+// sfc-script:E:\best\obsidian-audio-player-plus\src\components\AudioComment.vue?type=script
 var AudioComment_default = defineComponent({
   name: "AudioComment",
   props: {
     cmt: Object
   },
   methods: {
-    emitMovePlayhead() {
-      var _a2;
-      this.$emit("move-playhead", (_a2 = this.cmt) == null ? void 0 : _a2.timeNumber);
+    handleClick() {
+      var _a2, _b, _c, _d;
+      if (((_a2 = this.cmt) == null ? void 0 : _a2.endTimeNumber) !== void 0) {
+        this.$emit("play-segment", (_b = this.cmt) == null ? void 0 : _b.startTimeNumber, (_c = this.cmt) == null ? void 0 : _c.endTimeNumber);
+      } else {
+        this.$emit("move-playhead", (_d = this.cmt) == null ? void 0 : _d.startTimeNumber);
+      }
     },
     emitRemove() {
       this.$emit("remove", this.cmt.index);
     }
-  },
-  mounted() {
-    this.button = this.$refs.remove;
-    (0, import_obsidian.setIcon)(this.button, "cross");
   }
 });
 
-// sfc-template:/mnt/d/the-book-of-knowledge/.obsidian/plugins/obsidian-audio-player/src/components/AudioComment.vue?type=template
-var _hoisted_1 = { class: "comment" };
+// sfc-template:E:\best\obsidian-audio-player-plus\src\components\AudioComment.vue?type=template
+var _hoisted_1 = { class: "timestamp" };
 var _hoisted_2 = { class: "content" };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _a2, _b;
-  return openBlock(), createElementBlock("div", _hoisted_1, [
-    createBaseVNode("span", {
-      class: "timestamp",
-      onClick: _cache[0] || (_cache[0] = (...args) => _ctx.emitMovePlayhead && _ctx.emitMovePlayhead(...args))
-    }, toDisplayString((_a2 = _ctx.cmt) == null ? void 0 : _a2.timeString), 1),
-    createBaseVNode("span", _hoisted_2, toDisplayString((_b = _ctx.cmt) == null ? void 0 : _b.content), 1),
-    createBaseVNode("div", {
-      onClick: _cache[1] || (_cache[1] = (...args) => _ctx.emitRemove && _ctx.emitRemove(...args)),
-      class: "delete-comment",
-      ref: "remove"
-    }, null, 512)
+  return openBlock(), createElementBlock("div", {
+    class: "comment",
+    onClick: _cache[0] || (_cache[0] = (...args) => _ctx.handleClick && _ctx.handleClick(...args))
+  }, [
+    createBaseVNode("span", _hoisted_1, toDisplayString((_a2 = _ctx.cmt) == null ? void 0 : _a2.startTimeString), 1),
+    createBaseVNode("span", _hoisted_2, toDisplayString((_b = _ctx.cmt) == null ? void 0 : _b.content), 1)
   ]);
 }
 
 // src/components/AudioComment.vue
 AudioComment_default.render = render;
-AudioComment_default.__file = "src/components/AudioComment.vue";
+AudioComment_default.__file = "src\\components\\AudioComment.vue";
+AudioComment_default.__scopeId = "data-v-3818d76b";
 var AudioComment_default2 = AudioComment_default;
 
-// sfc-script:/mnt/d/the-book-of-knowledge/.obsidian/plugins/obsidian-audio-player/src/components/App.vue?type=script
+// sfc-script:E:\best\obsidian-audio-player-plus\src\components\App.vue?type=script
 var App_default = defineComponent({
   name: "App",
   components: {
@@ -6615,8 +6610,10 @@ var App_default = defineComponent({
       showInput: false,
       newComment: "",
       comments: [],
+      activeComment: null,
       ro: ResizeObserver,
-      smallSize: false
+      smallSize: false,
+      currentSegmentEnd: null
     };
   },
   computed: {
@@ -6630,7 +6627,7 @@ var App_default = defineComponent({
       return Math.floor(this.currentTime / this.duration * this.nSamples);
     },
     commentsSorted() {
-      return this.comments.sort((x, y) => x.timeNumber - y.timeNumber);
+      return this.comments.sort((x, y) => x.startTimeNumber - y.startTimeNumber);
     }
   },
   methods: {
@@ -6640,12 +6637,15 @@ var App_default = defineComponent({
     getParentWidth() {
       return this.mdElement.clientWidth;
     },
+    isCurrent() {
+      return this.audio.src === this.srcPath;
+    },
     onResize() {
       this.smallSize = this.$el.clientWidth < 300;
     },
     async loadFile() {
       const file = window.app.vault.getAbstractFileByPath(this.filepath);
-      if (file && file instanceof import_obsidian2.TFile) {
+      if (file && file instanceof import_obsidian.TFile) {
         if (!this.loadCache())
           this.processAudio(file.path);
         this.srcPath = window.app.vault.getResourcePath(file);
@@ -6686,17 +6686,20 @@ var App_default = defineComponent({
         this.saveCache();
       });
     },
+    showCommentInput() {
+      this.showInput = true;
+      setTimeout(() => {
+        const input = this.$refs.commentInput;
+        input.focus();
+      });
+    },
     barMouseDownHandler(i) {
       this.clickCount += 1;
       setTimeout(() => {
         this.clickCount = 0;
       }, 200);
       if (this.clickCount >= 2) {
-        this.showInput = true;
-        setTimeout(() => {
-          const input = this.$refs.commentInput;
-          input.focus();
-        });
+        this.showCommentInput();
       } else {
         let time = i / this.nSamples * this.duration;
         this.setPlayheadSecs(time);
@@ -6704,12 +6707,14 @@ var App_default = defineComponent({
     },
     setPlayheadSecs(time) {
       this.currentTime = time;
-      if (this.audio.src === this.srcPath) {
+      if (!this.isCurrent())
+        this.togglePlay();
+      if (this.isCurrent()) {
         this.audio.currentTime = time;
       }
     },
     togglePlay() {
-      if (!(this.audio.src === this.srcPath)) {
+      if (!this.isCurrent()) {
         this.audio.src = this.srcPath;
       }
       if (this.audio.paused) {
@@ -6726,11 +6731,13 @@ var App_default = defineComponent({
       }
       this.audio.addEventListener("timeupdate", this.timeUpdateHandler);
       (_a2 = this.audio) == null ? void 0 : _a2.play();
+      this.playing = true;
       this.setBtnIcon("pause");
     },
     pause() {
       var _a2;
       (_a2 = this.audio) == null ? void 0 : _a2.pause();
+      this.playing = false;
       this.setBtnIcon("play");
     },
     globalPause() {
@@ -6739,12 +6746,28 @@ var App_default = defineComponent({
     },
     timeUpdateHandler() {
       var _a2;
-      if (this.audio.src === this.srcPath)
+      if (this.isCurrent()) {
         this.currentTime = (_a2 = this.audio) == null ? void 0 : _a2.currentTime;
+        if (this.currentSegmentEnd !== null && this.currentTime >= this.currentSegmentEnd) {
+          console.log(`Reached segment end: ${this.currentTime} >= ${this.currentSegmentEnd}`);
+          this.pause();
+          this.currentSegmentEnd = null;
+        }
+        const nextCommencts = this.commentsSorted.filter((x) => {
+          var _a3;
+          return ((_a3 = this.audio) == null ? void 0 : _a3.currentTime) >= x.startTimeNumber;
+        });
+        if (nextCommencts.length == 1) {
+          this.activeComment = nextCommencts[0];
+        }
+        if (nextCommencts.length > 1) {
+          this.activeComment = nextCommencts[nextCommencts.length - 1];
+        }
+      }
     },
     setBtnIcon(icon) {
-      (0, import_obsidian2.setIcon)(this.button, icon);
-      (0, import_obsidian2.setIcon)(this.button1, icon);
+      (0, import_obsidian.setIcon)(this.button, icon);
+      (0, import_obsidian.setIcon)(this.button1, icon);
     },
     addComment() {
       if (this.newComment.length == 0)
@@ -6767,16 +6790,37 @@ var App_default = defineComponent({
       const cmtLines = lines.slice(sectionInfo.lineStart + 2, sectionInfo.lineEnd);
       const cmts = cmtLines.map((x, i) => {
         const split = x.split(" --- ");
-        const timeStamp = secondsToNumber(split[0]);
+        let startTimeNumber = secondsToNumber(split[0]);
+        let startTimeString = split[0];
+        let endTimeNumber = void 0;
+        let endTimeString = void 0;
+        let content = split[1];
+        if (split[0] && split[0].includes(" \u2192 ")) {
+          const timeSplit = split[0].split(" \u2192 ");
+          startTimeString = timeSplit[0];
+          startTimeNumber = secondsToNumber(startTimeString);
+          endTimeString = timeSplit[1];
+          endTimeNumber = secondsToNumber(endTimeString);
+        }
+        if (split[1]) {
+          content = split[1];
+        }
         const cmt = {
-          timeNumber: timeStamp,
-          timeString: split[0],
-          content: split[1],
-          index: i
+          startTimeNumber,
+          startTimeString,
+          content,
+          index: i,
+          endTimeNumber,
+          endTimeString
         };
         return cmt;
       });
       return cmts;
+    },
+    playSegment(startTime, endTime) {
+      this.currentSegmentEnd = endTime;
+      this.setPlayheadSecs(startTime);
+      this.play();
     }
   },
   created() {
@@ -6790,10 +6834,12 @@ var App_default = defineComponent({
       this.setBtnIcon("play");
     });
     document.addEventListener("allresume", () => {
-      console.log("test");
-      if (this.audio.src === this.srcPath) {
+      if (this.isCurrent())
         this.setBtnIcon("pause");
-      }
+    });
+    document.addEventListener("addcomment", () => {
+      if (this.isCurrent())
+        this.showCommentInput();
     });
     this.audio.addEventListener("ended", () => {
       if (this.audio.src === this.srcPath)
@@ -6818,7 +6864,7 @@ var App_default = defineComponent({
   }
 });
 
-// sfc-template:/mnt/d/the-book-of-knowledge/.obsidian/plugins/obsidian-audio-player/src/components/App.vue?type=template
+// sfc-template:E:\best\obsidian-audio-player-plus\src\components\App.vue?type=template
 var _hoisted_12 = {
   class: "audio-player-ui",
   tabindex: "0"
@@ -6929,11 +6975,13 @@ function render2(_ctx, _cache, $props, $setup, $data, $options) {
     createBaseVNode("div", _hoisted_122, [
       (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.commentsSorted, (cmt) => {
         return openBlock(), createBlock(_component_AudioCommentVue, {
+          class: normalizeClass({ "active-comment": cmt == _ctx.activeComment }),
           onMovePlayhead: _ctx.setPlayheadSecs,
           onRemove: _ctx.removeComment,
+          onPlaySegment: _ctx.playSegment,
           cmt,
-          key: cmt.timeString
-        }, null, 8, ["onMovePlayhead", "onRemove", "cmt"]);
+          key: cmt.startTimeString
+        }, null, 8, ["class", "onMovePlayhead", "onRemove", "onPlaySegment", "cmt"]);
       }), 128))
     ])
   ]);
@@ -6941,11 +6989,11 @@ function render2(_ctx, _cache, $props, $setup, $data, $options) {
 
 // src/components/App.vue
 App_default.render = render2;
-App_default.__file = "src/components/App.vue";
+App_default.__file = "src\\components\\App.vue";
 var App_default2 = App_default;
 
 // src/audioPlayerRenderer.ts
-var AudioPlayerRenderer = class extends import_obsidian3.MarkdownRenderChild {
+var AudioPlayerRenderer = class extends import_obsidian2.MarkdownRenderChild {
   constructor(containerEl, options) {
     super(containerEl);
     this.options = options;
@@ -6965,7 +7013,7 @@ var AudioPlayerRenderer = class extends import_obsidian3.MarkdownRenderChild {
 };
 
 // src/main.ts
-var AudioPlayer = class extends import_obsidian4.Plugin {
+var AudioPlayer = class extends import_obsidian3.Plugin {
   async onload() {
     const player = document.createElement("audio");
     player.volume = 0.5;
@@ -6975,7 +7023,7 @@ var AudioPlayer = class extends import_obsidian4.Plugin {
       id: "pause-audio",
       name: "Pause Audio",
       callback: () => {
-        new import_obsidian4.Notice("Audio paused");
+        new import_obsidian3.Notice("Audio paused");
         const ev = new Event("allpause");
         document.dispatchEvent(ev);
         player.pause();
@@ -6985,11 +7033,35 @@ var AudioPlayer = class extends import_obsidian4.Plugin {
       id: "resume-audio",
       name: "Resume Audio",
       callback: () => {
-        new import_obsidian4.Notice("Audio resumed");
+        new import_obsidian3.Notice("Audio resumed");
         const ev = new Event("allresume");
         document.dispatchEvent(ev);
         if (player.src)
           player.play();
+      }
+    });
+    this.addCommand({
+      id: "add-audio-comment",
+      name: "Add bookmark",
+      callback: () => {
+        const ev = new Event("addcomment");
+        document.dispatchEvent(ev);
+      }
+    });
+    this.addCommand({
+      id: "audio-forward-5s",
+      name: "+5 sec",
+      callback: () => {
+        if (player.src)
+          player.currentTime += 5;
+      }
+    });
+    this.addCommand({
+      id: "audio-back-5s",
+      name: "-5 sec",
+      callback: () => {
+        if (player.src)
+          player.currentTime -= 5;
       }
     });
     this.registerMarkdownCodeBlockProcessor("audio-player", (source, el, ctx) => {
@@ -7002,9 +7074,11 @@ var AudioPlayer = class extends import_obsidian4.Plugin {
         "mp3",
         "wav",
         "ogg",
-        "flac"
+        "flac",
+        "mp4",
+        "m4a"
       ];
-      const link = this.app.metadataCache.getFirstLinkpathDest((0, import_obsidian4.getLinkpath)(filename), filename);
+      const link = this.app.metadataCache.getFirstLinkpathDest((0, import_obsidian3.getLinkpath)(filename), filename);
       if (!link || !allowedExtensions.includes(link.extension))
         return;
       const container = el.createDiv();
