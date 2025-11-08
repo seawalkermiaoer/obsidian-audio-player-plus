@@ -1,6 +1,6 @@
 <template>
   <div class="comment" @click="handleClick">
-    <span class="timestamp">{{ cmt?.startTimeString }}</span>
+    <span class="timestamp">{{ cmt?.startTimeString }}~{{cmt?.endTimeString}}</span>
     <span class="content">{{ cmt?.content }}</span>
   </div>
   
@@ -37,6 +37,7 @@ export default defineComponent({
   padding: 4px 8px;
   border-radius: 4px;
   transition: background-color 0.2s;
+  display: flex !important;    
 }
 
 .comment:hover {
@@ -45,18 +46,20 @@ export default defineComponent({
 
 .timestamp {
   font-weight: bold;
-  margin-right: 8px;
+  margin-right: 18px;
   font-family: monospace;
-}
 
-.end-time {
-  font-family: monospace;
-  color: #666;
-  margin-left: 4px;
-  margin-right: 8px;
+  /* 新增的样式 */
+  white-space: nowrap;     /* 强制文本不换行 */
+  overflow: hidden;        /* 隐藏超出容器部分的内容 */
+  text-overflow: ellipsis; /* 当内容被隐藏时，显示省略号 (...) */
+  width: 100%;             /* 让 span 占据父容器的全部宽度 */
 }
 
 .content {
-  flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
+
+
 </style>

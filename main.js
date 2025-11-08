@@ -6566,13 +6566,13 @@ var AudioComment_default = defineComponent({
 var _hoisted_1 = { class: "timestamp" };
 var _hoisted_2 = { class: "content" };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  var _a2, _b;
+  var _a2, _b, _c, _d;
   return openBlock(), createElementBlock("div", {
     class: "comment",
     onClick: _cache[0] || (_cache[0] = (...args) => _ctx.handleClick && _ctx.handleClick(...args))
   }, [
-    createBaseVNode("span", _hoisted_1, toDisplayString((_a2 = _ctx.cmt) == null ? void 0 : _a2.startTimeString), 1),
-    createBaseVNode("span", _hoisted_2, toDisplayString((_b = _ctx.cmt) == null ? void 0 : _b.content), 1)
+    createBaseVNode("span", _hoisted_1, toDisplayString((_a2 = _ctx.cmt) == null ? void 0 : _a2.startTimeString) + "~" + toDisplayString((_b = _ctx.cmt) == null ? void 0 : _b.endTimeString) + " " + toDisplayString((_c = _ctx.cmt) == null ? void 0 : _c.content), 1),
+    createBaseVNode("span", _hoisted_2, toDisplayString((_d = _ctx.cmt) == null ? void 0 : _d.content), 1)
   ]);
 }
 

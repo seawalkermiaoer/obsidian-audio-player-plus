@@ -251,7 +251,7 @@ export default defineComponent({
       return cmts;
     },
     
-    // New method for playing segments
+    // method for playing segments
     playSegment(startTime: number, endTime: number) {
       this.currentSegmentEnd = endTime;
       this.setPlayheadSecs(startTime);

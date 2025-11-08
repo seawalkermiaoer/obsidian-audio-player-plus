@@ -4,21 +4,21 @@
   padding: 4px 8px;
   border-radius: 4px;
   transition: background-color 0.2s;
+  display: flex !important;
 }
 .comment[data-v-3818d76b]:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 .timestamp[data-v-3818d76b] {
   font-weight: bold;
-  margin-right: 8px;
+  margin-right: 18px;
   font-family: monospace;
-}
-.end-time[data-v-3818d76b] {
-  font-family: monospace;
-  color: #666;
-  margin-left: 4px;
-  margin-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 .content[data-v-3818d76b] {
-  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
