@@ -34,10 +34,10 @@ accessable through command menu (Ctrl-P)
 ### Add bookmarks through text
 ~~~
 ```audio-player
-[[my awesome audio file.mp3]]
-00:00:44 --- chapter
-00:01:50 --- chapter 2 
-00:02:40 --- chapter 3 in which nothing happened
+[[a1.wav]]
+00:00:00 → 00:00:05 --- who
+00:00:04 → 00:00:08 --- are
+00:00:10 → 00:00:17 --- you
 ```
 ~~~
 ![image](https://user-images.githubusercontent.com/117757392/201384550-33aa7f25-cadc-4ce5-a846-24d87bd7a05d.png)
@@ -45,30 +45,19 @@ accessable through command menu (Ctrl-P)
 
 ## How to install
 
-### From Obsidian
-
-1. Open Settings > Thrid-party plugin
-2. Make sure Safe mode is off
-3. Click Browse community plugins
-4. Search Audio Player
-5. Click install
-6. Close community plugin browser and activate the plugin
 
 ### Using Git
 
 1. Close obsidian
 2. Go to your vault .obsidian/plugins folder in the terminal
-3. git clone https://github.com/noonesimg/obsidian-audio-player.git
+3. git clone https://github.com/seawalkermiaoer/obsidian-audio-player-plus.git
 4. Open obsidian
 5. Go to settings -> community plugins
-6. Scroll down, find "Audio Player" plugin and enable it
+6. Scroll down, find "Audio Player Plus" plugin and enable it
 
 
 ## Pricing
-The plugin is free, athough if you wanna say thanks, feel free to buy me a coffee
-
-[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="BuyMeACoffee" width="100">](https://www.buymeacoffee.com/noonesimg)
-
+The plugin is free, athough if you wanna say thanks, Star the repo.
 
 ## Notes 
 If there're any bugs or instabilities, don't hesitate to open an issue 

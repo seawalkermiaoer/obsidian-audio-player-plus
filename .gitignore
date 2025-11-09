@@ -19,3 +19,8 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+src/components/App.md
+SEGMENT_PLAYBACK.md
+deploy-plugin.ps1
+main.js
