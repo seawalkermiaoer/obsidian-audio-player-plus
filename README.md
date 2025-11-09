@@ -6,8 +6,6 @@
 - keeps playing even if you've closed the tab
 - add bookmarks to your audio files
 
-## Demo
-![add_audio](https://user-images.githubusercontent.com/117757392/201384119-fa94f5bc-dc8f-4e03-8822-0f8948aa52dd.gif)
 
 ## How to use
 ~~~
@@ -23,24 +21,27 @@ accessable through command menu (Ctrl-P)
 1. **Pause Audio** to pause whatever audio is playing
 2. **Resume Audio** to resume 
 
-### Add bookmarks through ui
-![add_bookmark](https://user-images.githubusercontent.com/117757392/201384274-14831e0b-458e-4a01-9869-34f34ad628cc.gif)
+### Add bookmarks
 
-1. Double click on any of the bars on the wave visualizer, 
-2. Type your text
-3. Hit enter or press the "Add" button
-4. Click on any bookmark timecode to set the playhead position
-
-### Add bookmarks through text
-~~~
 ```audio-player
-[[a1.wav]]
-00:00:00 → 00:00:05 --- who
-00:00:04 → 00:00:08 --- are
-00:00:10 → 00:00:17 --- you
+[[a_0701.1 Making New Friends at School.mp3]]
+00:00:00.099 → 00:00:06.212 --- Hello,
+00:00:06.311 → 00:00:10.335 --- First,
+00:00:10.436 → 00:00:13.379 --- Smile
+00:00:13.480 → 00:00:18.631 --- If
+00:00:18.732 → 00:00:21.843 --- Then
+00:00:21.944 → 00:00:26.952 --- It
+00:00:27.052 → 00:00:29.997 --- If
+00:00:30.048 → 00:00:34.768 --- Second,
+00:00:34.867 → 00:00:38.364 --- As
+00:00:38.464 → 00:00:43.520 --- So
+00:00:43.620 → 00:00:48.556 --- But
+00:00:48.656 → 00:00:54.000 --- Last,
+00:00:54.100 → 00:00:59.348 --- Then
+00:00:59.448 → 00:01:03.808 --- I
 ```
-~~~
-![image](https://user-images.githubusercontent.com/117757392/201384550-33aa7f25-cadc-4ce5-a846-24d87bd7a05d.png)
+
+<img width="1452" height="1090" alt="image" src="https://github.com/user-attachments/assets/aa0964b7-290a-4a26-92dc-9d2255d43a9f" />
 
 
 ## How to install
