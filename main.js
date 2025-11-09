@@ -6530,15 +6530,28 @@ var import_obsidian = require("obsidian");
 
 // src/utils.ts
 function secondsToString(num) {
-  num = Math.floor(num);
   const h2 = String(Math.floor(num / 3600)).padStart(2, "0");
-  const m = String(Math.floor(num / 60)).padStart(2, "0");
-  const s = String(Math.floor(num % 3600 % 60)).padStart(2, "0");
-  return `${h2}:${m}:${s}`;
+  const m = String(Math.floor(num % 3600 / 60)).padStart(2, "0");
+  const s = String(Math.floor(num % 60)).padStart(2, "0");
+  if (num % 1 !== 0) {
+    const fractional = Math.round(num % 1 * 10) / 10;
+    const ms = fractional.toFixed(1).substring(2);
+    return `${h2}:${m}:${s}.${ms}`;
+  } else {
+    return `${h2}:${m}:${s}`;
+  }
 }
 function secondsToNumber(stmp) {
-  const nums = stmp.split(":").map((x) => Number.parseInt(x));
-  return nums[2] + nums[1] * 60 + nums[0] * 3600;
+  if (stmp.includes(".")) {
+    const [timePart, msPart] = stmp.split(".");
+    const nums = timePart.split(":").map((x) => Number.parseInt(x));
+    const baseSeconds = nums[2] + nums[1] * 60 + nums[0] * 3600;
+    const milliseconds = Number.parseFloat("0." + msPart);
+    return baseSeconds + milliseconds;
+  } else {
+    const nums = stmp.split(":").map((x) => Number.parseInt(x));
+    return nums[2] + nums[1] * 60 + nums[0] * 3600;
+  }
 }
 
 // sfc-script:E:\best\obsidian-audio-player-plus\src\components\AudioComment.vue?type=script
